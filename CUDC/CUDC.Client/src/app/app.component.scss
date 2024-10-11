@@ -1,0 +1,14 @@
+.envBanner {
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    color: white;
+    background-color: rgb(113, 151, 41);
+    padding: 1px;
+    font-size: 24px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+    height: 38px;
+}

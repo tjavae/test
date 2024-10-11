@@ -1,0 +1,138 @@
+<div *ngIf="showSearchForm && surveyActive">
+    <form (ngSubmit)="search()">
+        <h2>Search For A Credit Union</h2>
+        <h5 *ngIf="!manageCatSeDos">For taking CUDC survey</h5>
+        <h5 *ngIf="manageCatSeDos">For unlocking or transfering ownership of a CAT/SE/DOS survey</h5>
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label for="search-name" class="col-sm-3 control-label">Name or Charter Number:</label>
+                <div class="col-sm-7">
+                    <input type="text" id="search-name" [(ngModel)]="model.name" name="name" class="form-control"
+                           title="Credit Union Name or Charter Number">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-region" class="col-sm-3 control-label">Region:</label>
+                <div class="col-sm-7">
+                    <select id="search-region" [(ngModel)]="model.region" name="region" class="form-control"
+                            title="Region">
+                        <option value="">Select Region</option>
+                        <option value="1">Eastern (1)</option>
+                        <option value="2">Southern (2)</option>
+                        <option value="3">Western (3)</option>
+                        <option value="8">ONES (8)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-se" class="col-sm-3 control-label">SE:</label>
+                <div class="col-sm-7">
+                    <input type="text" id="search-se" [(ngModel)]="model.se" name="se" class="form-control" title="SE">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-district" class="col-sm-3 control-label">District:</label>
+                <div class="col-sm-7">
+                    <input type="text" id="search-district" [(ngModel)]="model.district" name="district"
+                           class="form-control" title="District">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-state" class="col-sm-3 control-label">State:</label>
+                <div class="col-sm-7">
+                    <select id="search-state" [(ngModel)]="model.state" name="state" class="form-control" title="State">
+                        <option value="">Select State</option>
+                        <option *ngFor="let item of states" [value]="item.value">{{item.text}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-address" class="col-sm-3 control-label">Address:</label>
+                <div class="col-sm-7">
+                    <input type="text" id="search-address" [(ngModel)]="model.address" name="address"
+                           class="form-control" title="Address">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-city" class="col-sm-3 control-label">City:</label>
+                <div class="col-sm-7">
+                    <input type="text" id="search-city" [(ngModel)]="model.city" name="city" class="form-control"
+                           title="City">
+                </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-7">
+                <input type="submit" class="btn btn-primary" value="Search" />
+                &nbsp;&nbsp;
+                <input type="button" class="btn btn-default" (click)="resetCuSearch()" value="Reset" />
+              </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div *ngIf="showSearchResults">
+  <h2 *ngIf="!manageCatSeDos">Take current CUDC Survey for a Credit Union</h2>
+  <h2 *ngIf="manageCatSeDos">Manage Survey for a Credit Union</h2>
+  <div class="form-group">
+    <div class="col-md-12">
+      <label>Choose Cycle Date:</label>
+      <span>
+        <select id="cycle-date" [(ngModel)]="cycleDate" name="cycleDate" class="form-control" title="Cycle Date">
+          <option value=""></option>
+          <option *ngFor="let item of cycleDates" [ngValue]="item.cycleDateFormat2">{{item.cycleDateFormat1}}</option>
+        </select>
+      </span>
+      <span *ngIf="!cycleDate"><em>&nbsp;***If Cycle Date is left blank, Surveys Management will display for the active cycle Survey. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</em></span>
+      <span><button class="btn btn-primary" (click)="reset()">Return to Search Page</button></span>
+    </div>
+    
+    </div>
+    <table class="table table-bordered">
+      <caption>Search Results</caption>
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Charter Number</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of searchResults">
+          <td>{{item.name}}</td>
+          <td>{{item.charterNumber}}</td>
+          <td *ngIf="!manageCatSeDos"><a [routerLink]="['take/',item.charterNumber]">Take Survey</a></td>
+          <td *ngIf="manageCatSeDos">
+            <div class="dropdown">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Management
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" routerLink="cat/review/{{item.charterNumber}}/{{cycleDate}}">CAT Survey</a>
+                <a class="dropdown-item" routerLink="se/review/{{item.charterNumber}}/{{cycleDate}}">SE Survey</a>
+                <a class="dropdown-item" routerLink="dos/review/{{item.charterNumber}}/{{cycleDate}}">DOS Survey</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<div *ngIf="showNotFound">
+    <p style="color:#bd2130">No Credit Unions found!</p>
+    <p>       
+        <button class="btn btn-primary" (click)="reset()">Return to Search Page</button>
+    </p>
+</div>
+
+<div *ngIf="!surveyActive">
+    <p style="color:#bd2130; text-align: center;">No active surveys at this time.</p>
+</div>

@@ -1,0 +1,73 @@
+<button class="btn btn-primary" (click)="onCreate()">Create New User</button>
+
+<table class="table table-bordered mt-3">
+    <caption>Users</caption>
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">User ID</th>
+            <th scope="col">Role</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngIf="loading">
+            <tr>
+                <td colspan="4">Loading...</td>
+            </tr>
+        </ng-container>
+        <ng-container *ngIf="!loading">
+            <tr *ngFor="let user of users">
+                <td>{{user.userId}}</td>
+                <td>{{roles[user.role]}}</td>
+                <td><a href="javascript:void(0)" (click)="onEdit(user.id)">Edit</a></td>
+                <td><a href="javascript:void(0)" (click)="onDelete(user.id)">Delete</a></td>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>
+
+<div class="modal fade" id="create-or-edit">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title">{{modalTitle}}</strong>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" *ngIf="user" novalidate>
+                    <div class="form-group">
+                        <label for="user-id-field">User ID:</label>
+                        <input type="text" id="user-id-field" [(ngModel)]="user.userId" name="userId" class="form-control" placeholder="Enter User ID" required>
+                        <div class="invalid-feedback">Please enter User ID.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-role-field">User Role:</label>
+                        <select id="user-role-field" [(ngModel)]="user.role" name="role" class="form-control" placeholder="Select User Role" required>
+                            <option value="0">Admin</option>
+                            <option value="1">User</option>
+                        </select>
+                        <div class="invalid-feedback">Please select User Role.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="onCreateOrEdit()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-confirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="assets/warning.png" alt="Warning"> Are you sure you want to delete this user?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onDeleteConfirmation()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

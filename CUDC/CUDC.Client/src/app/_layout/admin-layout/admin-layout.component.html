@@ -1,0 +1,60 @@
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white" aria-label="CUDC Header">
+        <div class="container">
+            <div class="col-2">
+                <span class="logo"></span>
+            </div>
+            <div class="col-8 text-center">
+                <a class="navbar-brand" routerLink="/">Credit Union Data Collection (CUDC)</a>
+                <em class="omb-no">(OMB No. 3133-0205)</em>
+            </div>
+            <div class="col-2">
+                <span class="username" *ngIf="userRole">{{userRole.userId}}</span>
+            </div>
+        </div>
+    </nav>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-secondary box-shadow mb-3" aria-label="CUDC Menu">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#admin-navbar" aria-controls="admin-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="admin-navbar">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white" routerLink="/admin">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white" routerLink="/admin/surveys">Surveys</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white" routerLink="/admin/survey">Take CUDC Survey</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white" routerLink="/admin/manage">Manage Survey</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white" routerLink="/admin/radar-view">RADAR View</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white" routerLink="/admin/search-user">Search User</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <main role="main" class="pb-3">
+        <router-outlet></router-outlet>
+    </main>
+</div>
+
+<footer class="page-footer footer-font border-top pt-4">
+    <div class="container">
+        <div class="text-center">
+            National Credit Union Administration, 1775 Duke Street, Alexandria, VA 22314<br />
+            <em>{{version}}</em>
+        </div>
+    </div>
+</footer>

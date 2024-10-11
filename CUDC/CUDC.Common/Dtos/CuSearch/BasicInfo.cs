@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CUDC.Common.Dtos.CuSearch
+{
+    public class BasicInfo
+    {
+        public string Name { get; set; }
+
+        public int CharterNumber { get; set; }
+
+        public int JoinNumber { get; set; }
+    }
+}

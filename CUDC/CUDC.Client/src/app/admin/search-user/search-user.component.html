@@ -1,0 +1,112 @@
+<div>
+    <form>
+        <h2>Search For A User</h2>
+        <h5>For viewing CUDC user's permissions</h5>
+    </form>
+</div>
+
+<!-- Search action -->
+<div>
+    <form (ngSubmit)="search()">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label>User ID:</label>
+                    <input type="text" id="search-userId" [(ngModel)]="model.userId" name="userId" class="form-control" title="User ID">
+                </div>
+                <div class="col-sm-3">
+                    <label>Employee #:</label>
+                    <input type="text" id="search-employeeNumbe" [(ngModel)]="model.employeeNumber" name="EmployeeNumber" class="form-control" title="Employee Number">
+                </div>
+                <div class="col-sm-3">
+                    <label>First Name:</label>
+                    <input type="text" id="search-firstName" [(ngModel)]="model.firstName" name="FirstName" class="form-control" title="First Name">
+                </div>
+                <div class="col-sm-3">
+                    <label>Last Name:</label>
+                    <input type="text" id="search-lastName" [(ngModel)]="model.lastName" name="LastName" class="form-control" title="Last Name">
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-4">
+                    <input type="submit" class="btn btn-primary" value="Search" />
+                    <span style="padding-left: 10px;"></span>
+                    <input type="button" class="btn btn-default" (click)="resetSearch()" value="Reset" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<br />
+
+<!-- searchResults -->
+<div>
+    <table class="table table-bordered">
+        <caption>Search Results</caption>
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">User ID</th>
+                <th scope="col">Employee #</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">View Permissions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngIf="showNotFound">
+                <tr>
+                    <td colspan="7" style="color:#bd2130">No users found!</td>
+                </tr>
+            </ng-container>
+
+            <ng-container *ngIf="!showNotFound">
+                <tr *ngFor="let item of searchResults">
+                    <td>{{item.userId}}</td>
+                    <td>{{item.employeeNumber}}</td>
+                    <td>{{item.firstName}}</td>
+                    <td>{{item.lastName}}</td>
+                    <td>{{item.email}}</td>
+                    <td><a href="javascript:void(0)" (click)="onViewPermissions(item.userId)">View Permissions</a></td>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</div>
+
+<!-- Permission Details -->
+<div *ngIf="currentUserId">
+    <table class="table table-bordered">
+        <caption>Permission Details</caption>
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">UserID</th>
+                <th scope="col">Group</th>
+                <th scope="col">Module</th>
+                <th scope="col">Action</th>
+                <th scope="col">Region</th>
+                <th scope="col">SE Group</th>
+                <th scope="col">Credit Union</th>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngIf="showPermissionNotFound">
+                <tr>
+                  <td colspan="7" style="color:#bd2130">{{currentUserId}} has no access pemission.</td>
+                </tr>
+            </ng-container>
+            <ng-container *ngIf="!showPermissionNotFound">
+                <tr *ngFor="let item of userPermissions">
+                    <td>{{currentUserId}}</td>
+                    <td>{{item.groupName}}</td>
+                    <td>{{item.module}}</td>
+                    <td>{{item.action}}</td>
+                    <td>{{item.region}}</td>
+                    <td>{{item.se}}</td>
+                    <td>{{item.creditUnion}}</td>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</div>

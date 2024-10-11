@@ -1,0 +1,52 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - feature/*
+    - bugfix/*
+  paths:
+    include:
+    - CUDC/*
+    - cudc-build-feature-bugfix.yml
+    exclude:
+    - '!cudc-build-feature-bugfix.yml'
+
+resources:
+  repositories:
+  - repository: templates
+    type: git
+    name: ITSS TO1\PipelineTemplates
+    ref: 'refs/heads/main'
+
+variables:
+  majorVersion: 3
+  minorVersion: 9
+  productName: 'CUDC'
+
+name: $(majorVersion).$(minorVersion).$(date:yy)$(DayOfYear)$(rev:.r)
+
+jobs:
+  - template: DotNet/job-build-and-scan-dotnet-3.yml@templates
+    parameters:
+      productName: '$(productName)'
+      sonarQubeProjectKey: '$(productName)'
+      pathToRestore: 'CUDC/CUDC.sln'
+      projectsToBuild:
+        - path: 'CUDC/CUDC.Api/CUDC.Api.csproj'
+          buildPlatform: 'x64'
+          buildConfiguration: 'Release'
+          hashDllFilter: 'System.'
+        - path: 'CUDC/CUDC.Web/CUDC.Web.csproj'
+          buildPlatform: 'x64'
+          buildConfiguration: 'Release'
+          hashDllFilter: 'System.'
+
+  - template: NPM/job-build-and-scan-npm.yml@templates
+    parameters:
+      productName: '$(productName)_UI'
+      sonarQubeProjectKey: '$(productName)_UI'
+      workingDirectory: 'CUDC/CUDC.Client'
+      useCleanInstall: true
+      auditLevel: 'none'
+      buildConfigurations:
+        - configuration: 'build'

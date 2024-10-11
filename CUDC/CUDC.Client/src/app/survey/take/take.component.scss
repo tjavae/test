@@ -1,0 +1,41 @@
+.question-number {
+    border: 2px solid #42a9a8;
+    border-radius: 50%;
+    color: #42a9a8;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    height: 30px;
+    margin: 0 10px 0 0;
+    padding: 0;
+    text-align: center;
+    width: 30px;
+    line-height: 25px;
+}
+
+.question-text {
+    display: inline-block;
+}
+
+.answer {
+    display: block;
+    padding: 10px 10px 10px 45px;
+}
+
+.remaining-chars {
+    font-size: 12px;
+    font-style: italic;
+}
+.autosaveribbon{   
+    position:fixed; 
+    top:0;
+    left:0;
+    background-color: #f8f8f8;   
+    padding: 3px;     
+    margin: 0;  
+    width : 100%;    
+}
+
+.btnSaveAsDraf{ 
+    background-color: #bebebe;
+}

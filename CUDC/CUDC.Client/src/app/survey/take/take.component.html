@@ -1,0 +1,143 @@
+<ng-container *ngIf="loading">
+    <p>Loading...</p>
+</ng-container>
+<ng-container *ngIf="!loading">           
+    <div *ngIf="surveyInfo">       
+       
+        <div>Credit Union Name: {{surveyInfo.basicInfo.name}}</div>
+        <div>Charter Number: {{surveyInfo.basicInfo.charterNumber}}</div>
+
+        <ng-container *ngIf="surveyOwner?.hasOwner">
+            <p>Survey Owner: {{surveyOwner.firstName}} {{surveyOwner.lastName}}</p>
+        </ng-container>      
+
+        <form [formGroup]="formGroup" (ngSubmit)="onPreSubmit()">
+            <fieldset *ngFor="let sec of sections" class="border p-2">
+                <legend class="w-auto">{{sec.title}}</legend>
+                <h6>{{sec.description}}</h6>
+                
+                <div *ngFor="let question of sec.questions" class="question">
+                    <span *ngIf="question.number" class="question-number">{{question.number}}</span>
+
+                    <span *ngIf="question.text" class="question-text" [innerHTML]="question.text"></span>
+
+                    <span class="answer">
+                        <ng-container [ngSwitch]="question.type">
+                            <ng-container *ngSwitchCase="questionType.Calendar">
+                                <input type="text" 
+                                    [formControlName]="question.id" 
+                                    class="datepicker q{{question.id}}"
+                                    maxlength="10"/>
+                            </ng-container>                        
+                            <ng-container *ngSwitchCase="questionType.DropDownList">
+                                <select [formControlName]="question.id" (change) = "appyQuestionLogic(question.id)">
+                                    <option value="">Select a value...</option>
+                                    <option *ngFor="let item of question.options" [value]="item.id">{{item.text}}</option>
+                                </select>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="questionType.NumberBox">
+                                <input type="text" 
+                                    data-type="number" 
+                                    [formControlName]="question.id"
+                                    class="q{{question.id}}" 
+                                    maxlength="50"/>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="questionType.TextBox">
+                                <input type="text" 
+                                    data-type="text" 
+                                    [formControlName]="question.id" 
+                                    style="width:100%; word-wrap:break-word;"
+                                    maxlength="{{question.maxLength}}"/>
+                                <span class="remaining-chars">
+                                    <span>{{getRemainingChars(question.id, question.maxLength)}}</span> characters remaining
+                                </span>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="questionType.TextArea">
+                                <textarea 
+                                    [formControlName]="question.id" 
+                                    rows="5" style="width:100%; word-wrap:break-word;"
+                                    maxlength="{{question.maxLength}}">
+                                </textarea>
+                                <span class="remaining-chars">
+                                    <span>{{getRemainingChars(question.id, question.maxLength)}}</span> characters remaining
+                                </span>
+                            </ng-container>
+                            <ng-container  *ngSwitchCase="questionType.Label">
+                                <label  class="static-labels" [formControlName]="question.id" style="width: 100%;"></label>
+                            </ng-container>
+                        </ng-container>
+                    </span>
+                </div>
+            </fieldset>
+
+            <br />
+            <div class="row">
+                <div class="col-md-4 text-center"></div>        
+                <div class="col-md-2 text-center">
+                    <button type="button" class="btn btn-default btnSaveAsDraf" (click)="onSave()" >Save as Draft</button>                
+                    <div class="small"><strong>I want to save ONLY</strong><br />(I'm not ready to submit)</div>                
+                </div>
+                <div class="col-md-2 text-center" >
+                    <button type="submit" class="btn btn-primary">Save and Review</button>
+                    <div class="small"><strong>I'm done and ready to review!</strong></div>
+                </div>
+                <div class="col-md-4 text-center"></div>
+            </div>
+
+            <!-- Save as Draft confirm modal -->
+            <div class="modal fade" id="save-as-draft-confirm">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Save as Draft</h4>
+                        </div>
+                        <div class="modal-body">
+                            Would you like to save this survey for later?
+                        </div>
+                        <div class="modal-footer">                        
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onSaveConfirm()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save as Draft inform from server modal -->
+            <div class="modal fade" id="saved-as-draft">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Save as Draft</h4>
+                        </div>
+                        <div class="modal-body">
+                            Your survey has been saved successfully.
+                        </div>
+                        <div class="modal-footer">                        
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit confirm modal -->
+            <div class="modal fade" id="save-review">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Save and Review</h4>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you wish to save and review this survey?
+                        </div>
+                        <div class="modal-footer">                        
+                            <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onSubmit()">Yes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        </form>
+    </div>
+
+</ng-container>

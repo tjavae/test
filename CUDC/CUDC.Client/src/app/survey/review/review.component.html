@@ -1,0 +1,143 @@
+<ng-container *ngIf="loading">
+    <p>Loading...</p>
+</ng-container>
+<ng-container *ngIf="!loading">
+    <div *ngIf="surveyInfo">
+        <ng-container>
+            <h3>{{surveyInfo.survey.title}}</h3>      
+            <div>Credit Union Name: {{surveyInfo.basicInfo.name}}</div>
+            <div>Charter Number: {{surveyInfo.basicInfo.charterNumber}}</div>
+        </ng-container>
+
+        <ng-container *ngIf="surveyManagementView">
+            <div>Charter Region: {{charterInfo.region}}</div>
+            <div>Charter SE group: {{charterInfo.se}}</div>
+            <div>Survey Status: {{surveyStatus}}</div>
+        </ng-container>
+
+        <ng-container *ngIf="surveyOwner?.hasOwner">
+            <div>Survey Owner: {{surveyOwner.firstName}} {{surveyOwner.lastName}}</div>
+            <div *ngIf="isSubmitted">Submitted on: {{surveyInfo.answers?.submittedOn | date:'yyyy-MM-dd HH:mm:ss'}}</div>
+        </ng-container>
+
+        <ng-container *ngIf="!surveyManagementView">
+            <fieldset *ngFor="let sec of sections" class="border p-2">           
+                <legend class="w-auto">{{sec.title}}</legend>
+                <h6>{{sec.description}}</h6>
+
+                <div *ngFor="let question of sec.questions" class="question">
+                    <span *ngIf="question.number" class="question-number">{{question.number}}</span>
+                    <span *ngIf="question.text" class="question-text" [innerHTML]="question.text"></span>
+                    <span class="answer">
+                        <span *ngIf="question.answer" style="color:#28a745">{{getAnswerText(question)}}</span>
+                        <span *ngIf="!question.answer && !question.isRequired" style="color:#bd2130">Nothing selected</span>
+                        <span *ngIf="!question.answer && question.isRequired" style="color:#bd2130">A response to this question is required. Please enter a value.</span>
+                    </span>
+                </div>
+            </fieldset>
+        </ng-container>
+
+        <br>
+
+        <div>
+            <button class="btn btn-primary" (click)="onSubmit()" *ngIf="canSubmit && !prevent">Submit</button>
+            <button class="btn btn-default" (click)="onSubmit()" *ngIf="canSubmit && prevent">Submit</button>
+            <button type="button" class="btn btn-primary" *ngIf="isSubmitted && surveyManagementView" (click)="onUnlock()">Change to Saved</button> 
+            <span *ngIf="isSubmitted || canSubmit" style="padding-left: 10px;"></span>
+            <button type="button" class="btn btn-primary"  (click)="onTransferOwner()" *ngIf="surveyOwner?.hasOwner && surveyManagementView">Transfer Ownership</button>
+            <button class="btn btn-primary" (click)="goBack()" *ngIf="canGoBack" title="Go Back to Questions">Go Back</button>
+        </div>
+
+        <!-- Submit confirm modal -->
+        <div class="modal fade" id="submit-confirm">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Submit Confirmation</h4>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you wish to submit this survey?
+                    </div>
+                    <div class="modal-footer">                        
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="submit()">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question required modal -->
+        <div class="modal fade" id="required-fields-not-meet">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"><img src="assets/warning.png" alt="Warning">Question Required</h4>
+                    </div>
+                    <div class="modal-body">
+                        Answers for question required have not been entered.
+                        <br />
+                        Please click Go Back to enter!
+                    </div>
+                    <div class="modal-footer">             
+                        <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unlock confirm modal -->
+        <div class="modal fade" id="unlock-confirm">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Change to Saved confirmation</h4>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure to unlock this survey and change it to Saved status?
+                    </div>
+                    <div class="modal-footer">                        
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="unlock()">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transfer ownership modal -->
+        <div class="modal fade" id="spinner">
+            <div class="modal-dialog">            
+                <div class="d-flex justify-content-center"> 
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="transfer-ownership">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <strong class="modal-title">Transfer Ownership</strong>
+                    </div>
+                    <div class="modal-body">
+                        <form class="needs-validation" novalidate>                       
+                            <div class="form-group" >
+                                <label for="current-owner">Current Owner:</label>                                                              
+                                <input *ngIf="surveyOwner?.hasOwner" disabled type="text" id="current-owner" class="form-control" value="{{surveyOwner.firstName}} {{surveyOwner.lastName}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="new-owner">New Owner:</label>                          
+                                <select id="new-owner" [(ngModel)]="selectedUser" name="selectedUser" class="form-control" placeholder="Select User" required>
+                                    <option *ngFor="let item of extractUsers" [ngValue]="item">{{item.firstName}} {{item.lastName}}</option>
+                                </select>
+                                <div class="invalid-feedback">Please select user!</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" (click)="transferOwner()">OK</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

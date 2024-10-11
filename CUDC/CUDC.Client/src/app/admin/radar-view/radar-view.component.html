@@ -1,0 +1,45 @@
+<form class="needs-validation" novalidate>
+    <div class="form-group">
+        <label for="user-id-field">User ID:</label>
+        <input type="text" id="user-id-field" [(ngModel)]="userId" name="userId" class="form-control" placeholder="Enter User ID" required>
+        <div class="invalid-feedback">Please enter User ID.</div>
+    </div>
+    <div class="form-group">
+        <label for="cu-num-field">CU Number:</label>
+        <input type="number" id="cu-num-field" [(ngModel)]="cuNumber" name="cuNumber" class="form-control" placeholder="Enter CU Number" required>
+        <div class="invalid-feedback">Please enter CU Number.</div>
+    </div>
+    <div class="form-group">
+        <label for="cu-num-field">Cycle Date:</label>        
+        <select id="cycle-date" [(ngModel)]="cycleDate" name="cycleDate" class="form-control" title="Cycle Date">           
+            <option value=""></option>
+            <option *ngFor="let item of cycleDates" [ngValue]="item.cycleDateFormat2">{{item.cycleDateFormat1}}</option>
+        </select>
+        <span *ngIf="!cycleDate"><em>***If Cycle Date is left blank, then CAT/SE/DOS will display for the active cycle surveys.</em> </span>
+    </div>
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" (click)="onView()">View</button>
+        <button type="button" class="btn btn-danger ml-2" (click)="onCancel()">Cancel</button>
+    </div>
+</form>
+
+<div>
+    <fieldset class="border p-2">
+        <legend class="w-auto">CAT</legend>
+        <iframe [src]="catUrl" height="200" width="100%" title="CAT"></iframe>
+    </fieldset>
+</div>
+
+<div>
+    <fieldset class="border p-2">
+        <legend class="w-auto">SE</legend>
+        <iframe [src]="seUrl" height="200" width="100%" title="SE"></iframe>
+    </fieldset>
+</div>
+
+<div>
+    <fieldset class="border p-2">
+        <legend class="w-auto">DOS</legend>
+        <iframe [src]="dosUrl" height="200" width="100%" title="DOS"></iframe>
+    </fieldset>
+</div>

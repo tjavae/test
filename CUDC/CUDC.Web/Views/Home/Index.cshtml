@@ -1,0 +1,32 @@
+﻿@model System.String
+
+@{
+    var version = Model;
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Credit Union Data Collection (CUDC)</title>
+    <base href="~/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="~/css/bootstrap.min.css">
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="~/css/jquery-ui.min.css">
+    <script src="~/js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="~/styles.css">
+</head>
+<body>
+    <app-root></app-root>
+    <script src="~/runtime.js?v=@version" type="module"></script>
+    <script src="~/polyfills.js?v=@version" type="module"></script>
+    <script src="~/styles.js?v=@version" defer></script>
+    <script src="~/scripts.js?v=@version" defer></script>
+    <script src="~/vendor.js?v=@version" type="module"></script>
+    <script src="~/main.js?v=@version" type="module"></script>
+</body>
+</html>

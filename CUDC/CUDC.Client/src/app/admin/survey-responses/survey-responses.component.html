@@ -1,0 +1,72 @@
+<h1>
+    <ng-container *ngIf="survey">
+        <ng-container *ngIf="survey.title">
+            '{{survey.title}}'
+        </ng-container>
+        <ng-container *ngIf="!survey.title">
+            {{surveyTypes[survey.type]}}
+        </ng-container>
+    </ng-container>
+    Survey Responses
+</h1>
+
+<table class="table table-bordered mt-3">
+    <caption>Survey Responses</caption>
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">User ID</th>
+            <th scope="col">CU Number</th>
+            <th scope="col">Join Number</th>
+            <th scope="col">Submitted On</th>
+            <th scope="col">Rejected</th>
+            <th scope="col">Reject</th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngIf="loading">
+            <tr>
+                <td colspan="6">Loading...</td>
+            </tr>
+        </ng-container>
+        <ng-container *ngIf="!loading && responses.length === 0">
+            <tr>
+                <td colspan="6">No survey responses at this time.</td>
+            </tr>
+        </ng-container>
+        <ng-container *ngIf="!loading">
+            <tr *ngFor="let response of responses">
+                <td>{{response.userId}}</td>
+                <td>{{response.cuNumber}}</td>
+                <td>{{response.joinNumber}}</td>
+                <td>{{formatDate(response.submittedOn)}}</td>
+                <td>
+                    <ng-container *ngIf="isRejected(response)">
+                        Yes
+                    </ng-container>
+                    <ng-container *ngIf="!isRejected(response)">
+                        No
+                    </ng-container>
+                </td>
+                <td>
+                    <ng-container *ngIf="!isRejected(response)">
+                        <a href="javascript:void(0)" (click)="onReject(response.id)">Reject</a>
+                    </ng-container>
+                </td>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>
+
+<div class="modal fade" id="reject-confirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="assets/warning.png" alt="Warning"> Are you sure you want to reject this survey response?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="onRejectConfirmation()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

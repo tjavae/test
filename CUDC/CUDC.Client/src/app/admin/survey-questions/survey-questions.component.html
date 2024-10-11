@@ -1,0 +1,361 @@
+<h1>
+    <ng-container *ngIf="survey">
+        <ng-container *ngIf="survey.title?.trim()">
+            '{{survey.title}}'
+        </ng-container>
+        <ng-container *ngIf="!survey.title?.trim()">
+            {{surveyTypes[survey.type]}}
+        </ng-container>
+    </ng-container>
+    Survey Questions
+</h1>
+<ng-container *ngIf="loading">
+    <p>Loading...</p>
+</ng-container>
+
+<ng-container *ngIf="!loading" id="main-body" onLoad="JavaScript:checkRefresh();">
+    <ng-container *ngFor="let sec of sections; first as isFirst; last as isLast">
+        <div class="row">
+            <div class="col-sm-1 text-right">
+                <button *ngIf="!isFirst" (click)="moveSectionUp(sec)" class="btn btn-primary btn-sm m-1" title="Move this section up">
+                    <em class="fas fa-arrow-up"></em>
+                </button>
+                <button *ngIf="!isLast" (click)="moveSectionDown(sec)" class="btn btn-primary btn-sm m-1" title="Move this section down">
+                    <em class="fas fa-arrow-down"></em>
+                </button>
+            </div>
+            <div class="col-sm-10">
+                <fieldset class="border p-2">
+                    <legend *ngIf="sec.title" class="w-auto">{{sec.title}}</legend>
+                    <ng-container>
+                        <h6>{{sec.description}}</h6>
+                    </ng-container>
+                    <ng-container *ngIf="!sec.questions.length">
+                        <p>There are no questions in this section.</p>
+                        <hr>
+                    </ng-container>
+                    <ng-container *ngIf="sec.questions.length">
+                        <ng-container *ngFor="let question of sec.questions; first as isFirst; last as isLast">
+
+                            <div class="row container">
+                                <div class="col-sm-1 pr-0 text-right">
+                                    <button *ngIf="!isFirst" (click)="moveQuestionUp(question)" class="btn btn-primary btn-sm m-1" title="Move this question up">
+                                        <em class="fas fa-arrow-up"></em>
+                                    </button>
+                                    <button *ngIf="!isLast" (click)="moveQuestionDown(question)" class="btn btn-primary btn-sm m-1" title="Move this question down">
+                                        <em class="fas fa-arrow-down"></em>
+                                    </button>
+                                </div>
+                                <div class="col-sm-1 px-0 text-center" *ngIf="question.type != questionTypes.Label">
+                                    {{question.number}}
+                                </div>
+                                <div class="col-sm-1 px-0 text-center" *ngIf="question.type == questionTypes.Label">
+                                </div>
+                                <div class="col-sm-9 px-0">
+                                    <p>
+                                        <em *ngIf="question.isRequired" class="fas fa-asterisk" style="color:red"></em>
+                                        <span [innerHTML]="question.text"></span>
+                                    </p>
+                                    <ng-container [ngSwitch]="question.type">
+                                        <ng-container *ngSwitchCase="questionTypes.Calendar">
+                                            <input type="date">
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="questionTypes.DropDownList">
+                                            <select>
+                                                <option value="">Select a value...</option>
+                                                <option *ngFor="let item of question.options">{{item.text}}</option>
+                                            </select>
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="questionTypes.NumberBox">
+                                            <input type="number">
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="questionTypes.TextBox">
+                                            <input type="text">
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="questionTypes.TextArea">
+                                            <textarea></textarea>
+                                        </ng-container>
+                                    </ng-container>
+                                </div>
+                                <div class="col-sm-1 pl-0">
+                                  <button (click)="editQuestion(question)" class="btn btn-primary btn-sm m-1" title="Edit this question">Edit</button>
+                                  <button (click)="deleteQuestion(question)" class="btn btn-danger btn-sm m-1" title="Delete this question">Delete</button>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </ng-container>
+                    <div class="text-right">
+                        <button (click)="addQuestion(sec)" class="btn btn-primary btn-sm">
+                            <em class="fas fa-plus"></em> Add Question
+                        </button>
+                    </div>
+                    <div class="text-left" *ngIf="canAddQuestionReferences(sec)">
+                        <button (click)="addReference(sec)" class="btn btn-primary btn-sm">
+                            <em class="fas fa-plus"></em> Add Question Reference
+                        </button>
+                        <table class="table table-bordered mt-3">
+                            <caption>Questions</caption>
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Ref. Question #</th>
+                                    <th scope="col">Ref. Answer</th>
+                                    <th scope="col">Question #</th>
+                                    <th scope="col">Answer</th>
+                                    <th scope="col">Edit</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let ref of sec.references">
+                                    <tr>
+                                        <td>{{ref.rNumber}}</td>
+                                        <td>{{ref.rOption}}</td>
+                                        <td>{{ref.qNumber}}</td>
+                                        <td>{{ref.qOption}}</td>
+                                        <td><a href="javascript:void(0)" (click)="onEditReference(ref.id, sec)">Edit</a></td>
+                                        <td><a href="javascript:void(0)" (click)="onDeleteReference(ref.id, sec)">Delete</a></td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </fieldset>
+            </div>
+            <div class="col-sm-1">
+                <button (click)="editSection(sec)" class="btn btn-primary btn-sm m-1" title="Edit this section">Edit</button>
+                <button (click)="deleteSection(sec)" class="btn btn-danger btn-sm m-1" title="Delete this section">Delete</button>
+            </div>
+        </div>
+
+    </ng-container>
+    <div class="text-right">
+        <button (click)="addSection()" class="btn btn-primary btn-sm">
+            <em class="fas fa-plus"></em> Add Section
+        </button>
+    </div>
+    <div class="text-center">
+        <button id="SaveButton" (click)="save()" class="btn btn-primary m-1">Save Changes</button>
+        <button (click)="cancel()" class="btn btn-danger m-1">Cancel</button>
+    </div>
+</ng-container>
+
+<div class="modal fade" id="add-or-edit-section">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title">{{modalTitle}}</strong>
+            </div>
+            <div class="modal-body">
+                <form *ngIf="section" class="needs-validation" novalidate>
+                    <div class="form-group">
+                        <label for="section-title-field" class="fas fa-asterisk" style="color: red;">Title:</label>
+                        <input type="text" id="section-title-field" [(ngModel)]="sectionTitle" name="sectionTitle" class="form-control" placeholder="Enter Section Title" required>
+                        <div class="invalid-feedback">Please enter section title.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="section-description-field">Description:</label>
+                        <input type="text" id="section-description-field" [(ngModel)]="section.description" name="description" class="form-control" placeholder="Enter Section Description">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="addOrEditSection()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="add-or-edit-question">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title">{{modalTitle}}</strong>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" *ngIf="question" novalidate>
+                    <div class="form-group">
+                        <label for="question-type-field">Question Type:</label>
+                        <select id="question-type-field" [(ngModel)]="question.type" name="type" class="form-control" placeholder="Select Question Type" required>
+                            <option value="0">Calendar</option>
+                            <option value="2">Drop-Down List</option>
+                            <option value="3">Number Box</option>
+                            <option value="5">Text Area</option>
+                            <option value="6">Text Box</option>
+                            <option value="7">Static Label</option>
+                        </select>
+                        <div class="invalid-feedback">Please select Question Type.</div>
+                    </div>
+                    <ng-container *ngIf="question.type != null">
+                        <div class="form-group">
+                            <label for="question-number-field">Question Number:</label>
+                            <input type="text" id="question-number-field" [(ngModel)]="question.number" name="number" class="form-control" placeholder="Enter Question Number" required>
+                            <div class="invalid-feedback">Please enter a Question Number.</div>
+                        </div>
+                        <div class="form-group" *ngIf="question.type != questionTypes.Label">
+                            <label for="question-text-field">Question Text:</label>
+                            <input type="text" id="question-text-field" [(ngModel)]="question.text" name="text" class="form-control" placeholder="Enter Question Text" required>
+                            <div class="invalid-feedback">Please enter Question Text.</div>
+                        </div>
+                        <div class="form-group" *ngIf="question.type == questionTypes.Label">
+                            <label for="question-text-field">Static Text:</label>
+                            <textarea name="text" rows="4" id="question-text-field" [(ngModel)]="question.text" name="text" class="form-control" placeholder="Enter Static Text" required></textarea>
+                            <div class="invalid-feedback">Please enter Static Text.</div>
+                        </div>
+                        <ng-container *ngIf="question.type == questionTypes.TextBox || question.type == questionTypes.TextArea">
+                            <div class="form-group">
+                                <label for="question-max-length-field">Maximum Length:</label>
+                                <input type="number" id="question-max-length-field" min="2" max="2000" [(ngModel)]="question.maxLength" name="maxLength" class="form-control" placeholder="Enter Maximum Length" required>
+                                <div class="invalid-feedback">Please enter a number from 2 to 2000.</div>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="question.type == questionTypes.DropDownList">
+                            <label>Question Answers:</label>
+                            <ng-container *ngFor="let option of options; let i=index; trackBy:trackByFn">
+                                <input type="text" [(ngModel)]="options[i]" name="option{{i}}" class="form-control mb-1" placeholder="Enter Question Answer">
+                            </ng-container>
+                            <div class="text-right">
+                                <button (click)="addAnswer()" class="btn btn-primary btn-sm">
+                                    <em class="fas fa-plus"></em> Add Answer
+                                </button>
+                            </div>
+                        </ng-container>
+                        <div class="form-group" *ngIf="question.type != questionTypes.Label">
+                            <label for="question-required-field">Is Question Required:</label>
+                            <select id="question-required-field" [(ngModel)]="question.isRequired" name="isRequired" class="form-control" placeholder="Select If This Question Is Required" required>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                            <div class="invalid-feedback">Please select if this question is required.</div>
+                        </div>
+                    </ng-container>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="addOrEditQuestion()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-section-confirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="assets/warning.png" alt="Warning"> Are you sure you want to delete this section?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="deleteSectionConfirmation()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-question-confirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="assets/warning.png" alt="Warning"> Are you sure you want to delete this question?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="deleteQuestionConfirmation()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="add-or-edit-reference">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title">{{modalTitle}}</strong>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" novalidate>
+                    <div class="form-group">
+                        <label for="reference-question">Reference Question</label>
+                        <select id="reference-question"
+                                [(ngModel)]="selectedRQuestion"
+                                name="selectedRQuestion"
+                                class="form-control"
+                                placeholder="Select Question"
+                                required
+                                (change)="getSelectedQuestion()">
+                            <option *ngFor="let item of rQuestionHasOptions" [ngValue]="item">{{item.number}} {{item.text}}</option>
+                        </select>
+                        <div class="invalid-feedback">Please select reference question!</div>
+                    </div>
+                    <div *ngIf="selectedRQuestion" class="form-group">
+                        <label>Reference Question Answer:</label>
+                        <select id="reference-question-answer"
+                                [(ngModel)]="selectedRAnswer"
+                                name="selectedRAnswer"
+                                class="form-control"
+                                placeholder="Select Answer"
+                                required>
+                            <option *ngFor="let item of selectedRQuestion.options" [ngValue]="item">{{item.text}}</option>
+                        </select>
+                        <div class="invalid-feedback">Please select answer!</div>
+                    </div>
+                    <div *ngIf="selectedRQuestion && selectedRAnswer" class="form-group">
+                        <label for="question-be-referred">Question</label>
+                        <select id="question-be-referred"
+                                [(ngModel)]="selectedQuestion"
+                                name="selectedQuestion"
+                                class="form-control"
+                                placeholder="Select Question"
+                                required>
+                            <option *ngFor="let item of questionHasOptions" [ngValue]="item">{{item.number}} {{item.text}}</option>
+                        </select>
+                        <div class="invalid-feedback">Please select question!</div>
+                    </div>
+                    <div *ngIf="selectedQuestion" class="form-group">
+                        <label>Question Answer:</label>
+                        <select id="question-be-referred-answer"
+                                [(ngModel)]="selectedAnswer"
+                                name="selectedAnswer"
+                                class="form-control"
+                                placeholder="Select Answer"
+                                required>
+                            <option *ngFor="let item of selectedQuestion.options" [ngValue]="item">{{item.text}}</option>
+                        </select>
+                        <div class="invalid-feedback">Please select answer!</div>
+                    </div>
+                    <div *ngIf="duplicatedReference">
+                        <label>
+                            <span style="color:#bd2130">This reference can not be added.</span>
+                            <br />
+                            <span style="color:#bd2130">This is dupplicated record or reference logic already been saved.</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="addOrEditReference()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-reference-confirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title">{{modalTitle}}</strong>
+            </div>
+            <div class="modal-body">
+                <img src="assets/warning.png" alt="Warning"> Are you sure you want to delete this reference?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="deleteReferrenceConfirmation()">OK</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
